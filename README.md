@@ -1,6 +1,6 @@
 # Polyglot Microservices Blog Platform
 
-This project is a microservice-based blog engine utilizing an API Gateway and polyglot backends. It is built using a multi-repo architecture. 
+This project is a microservice-based blog engine utilizing an API Gateway and polyglot backends. It is built using a multi-repo architecture.
 
 ### 🏗️ System Architecture Repositories:
 * **[Infrastructure & Gateway (This Repo)](https://github.com/vinay10082/blog-infrastructure)**: Contains the NGINX API Gateway config and Docker Compose orchestration.
