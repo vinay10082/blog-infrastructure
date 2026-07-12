@@ -21,9 +21,15 @@ services:
       context: ../blog-post-server
     container_name: blog-post-server
     ports:
-      - "${POST_SERVER_PORT:-8081}:${POST_SERVER_PORT:-8081}"
+      - "${POST_SERVER_PORT:-8080}:${POST_SERVER_PORT:-8080}"
     environment:
-      - SERVER_PORT=${POST_SERVER_PORT:-8081}
+      - SERVER_PORT=${POST_SERVER_PORT:-8080}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-blog_db}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-blog_user}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - blog-network
 
@@ -36,8 +42,30 @@ services:
       - "${COMMENT_SERVER_PORT:-8082}:${COMMENT_SERVER_PORT:-8082}"
     environment:
       - PORT=${COMMENT_SERVER_PORT:-8082}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-blog_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-blog_db}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - blog-network
+
+  # The Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: blog-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-blog_db}
+      - POSTGRES_USER=${POSTGRES_USER:-blog_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - blog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blog_user -d blog_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   blog-network:
